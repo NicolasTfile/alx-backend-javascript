@@ -1,11 +1,9 @@
-```
 # TypeScript Fundamentals
-
-This README provides an overview of fundamental TypeScript concepts and features.
 
 ## 1. Basic Types in TypeScript
 
 TypeScript provides several basic types, including `number`, `string`, `boolean`, `null`, and `undefined`.
+
 
 ```
 let age: number = 30;
@@ -117,4 +115,3 @@ const userId: UserId = createUserId(123);
 ```
 
 These fundamental concepts and features demonstrate how TypeScript provides static type checking and enhanced tooling for JavaScript development.
-```
