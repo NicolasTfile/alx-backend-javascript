@@ -50,6 +50,8 @@ result: int = 42
 
 Here, `result` is annotated as an `int`, making it clear that it should hold an integer value.
 
+---
+
 ## Validating Your Code with Mypy
 
 [Mypy](http://mypy-lang.org/) is a powerful static type checker for Python that helps you catch type-related errors in your code. Here's how to use it:
