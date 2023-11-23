@@ -1,43 +1,66 @@
-const request = require("request");
-const {describe, it} = require("mocha");
-const expect = require("chai").expect;
+const { expect } = require('chai');
+const request = require('request');
 
-describe("Index page", function() {
-    const options = {
-	url: "http://localhost:7865/",
-	method: "GET"
-    }
-    it("check correct status code", function(done) {
-	request(options, function(err, res, body) {
-	    expect(res.statusCode).to.equal(200);
-	    done();
-	});
+describe('Index Page', () => {
+  it('should respond with the correct status code', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.statusCode).to.equal(200);
     });
-    it("check correct content", function(done) {
-	request(options, function(err, res, body) {
-	    expect(body).to.equal("Welcome to the payment system");
-	    done();
-	});
+  });
+
+  it('should have the correct content of the body', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(body).to.contain('Welcome to the payment system');
     });
+  });
+
+  it('should have the corrent Content-Type', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
+    });
+  });
+
+  it('should have the corrent Content-Length', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.headers['content-length']).to.equal('29');
+    });
+  });
 });
 
-describe("Cart page", function() {
-    it("check correct status code for correct url", function(done) {
-	request.get("http://localhost:7865/cart/12", function(err, res, body) {
-	    expect(res.statusCode).to.equal(200);
-	    done();
-	});
+describe('Cart Page', () => {
+  it('should have correst Status Code with num id param', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.statusCode).to.equal(200);
     });
-    it("check correct content for correct url", function(done) {
-	request.get("http://localhost:7865/cart/12", function(err, res, body) {
-	    expect(body).to.contain("Payment methods for cart 12");
-	    done();
-	});
+  });
+
+  it('should have the correct result with number id parameter', () => {
+    request('http://localhost:7865/cart/12', (error, res, body) => {
+      expect(body).to.contain('Payment methods for cart 12');
     });
-    it("check correct status code for incorrect url", function(done) {
-	request.get("http://localhost:7865/cart/kim", function(err, res, body) {
-	    expect(res.statusCode).to.equal(404);
-	    done();
-	});
+  });
+
+  it('should have the correct status code when non number id parameter is provided', () => {
+    request('http://localhost:7865/cart/hello', (error, res, body) => {
+      expect(res.statusCode).to.equal(404);
     });
+  });
+
+  it('should return the correct content-type given valid id parameter', () => {
+    request('http://localhost:7865/cart/12', (error, res, body) => {
+      expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
+    });
+  });
+
+  it('should return the correct content in the body when non number id is provided', () => {
+    request('http://localhost:7865/cart/hello', (error, res, body) => {
+      expect(body).to.contain('Cannot GET /cart/hello');
+    });
+  });
+
+  it('should return the correct content length', () => {
+    request('http://localhost:7865/cart/12', (error, res, body) => {
+      expect(res.headers['content-length']).to.equal('27');
+    });
+  });
 });

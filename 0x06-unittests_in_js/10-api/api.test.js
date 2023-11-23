@@ -1,117 +1,165 @@
-const request = require("request");
-const {describe, it} = require("mocha");
-const expect = require("chai").expect;
+const { expect } = require('chai');
+const request = require('request');
 
-describe("Index page", function() {
-    const options = {
-	url: "http://localhost:7865/",
-	method: "GET"
-    }
-    it("check correct status code", function(done) {
-	request(options, function(err, res, body) {
-	    expect(res.statusCode).to.equal(200);
-	    done();
-	});
+describe('Index Page', () => {
+  it('should respond with the correct status code', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.statusCode).to.equal(200);
     });
-    it("check correct content", function(done) {
-	request(options, function(err, res, body) {
-	    expect(body).to.equal("Welcome to the payment system");
-	    done();
-	});
+  });
+
+  it('should have the correct content of the body', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(body).to.contain('Welcome to the payment system');
     });
+  });
+
+  it('should have the corrent Content-Type', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
+    });
+  });
+
+  it('should have the corrent Content-Length', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.headers['content-length']).to.equal('29');
+    });
+  });
 });
 
-describe("Cart page", function() {
-    it("check correct status code for correct url", function(done) {
-	request.get("http://localhost:7865/cart/12", function(err, res, body) {
-	    expect(res.statusCode).to.equal(200);
-	    done();
-	});
+describe('Cart Page', () => {
+  it('should have correst Status Code with num id param', () => {
+    request('http://localhost:7865', (error, res, body) => {
+      expect(res.statusCode).to.equal(200);
     });
-    it("check correct content for correct url", function(done) {
-	request.get("http://localhost:7865/cart/12", function(err, res, body) {
-	    expect(body).to.equal("Payment methods for cart 12");
-	    done();
-	});
+  });
+
+  it('should have the correct result with number id parameter', () => {
+    request('http://localhost:7865/cart/12', (error, res, body) => {
+      expect(body).to.contain('Payment methods for cart 12');
     });
-    it("check correct status code for incorrect url", function(done) {
-	request.get("http://localhost:7865/cart/kim", function(err, res, body) {
-	    expect(res.statusCode).to.equal(404);
-	    done();
-	});
+  });
+
+  it('should have the correct status code when non number id parameter is provided', () => {
+    request('http://localhost:7865/cart/hello', (error, res, body) => {
+      expect(res.statusCode).to.equal(404);
     });
+  });
+
+  it('should return the correct content-type given valid id parameter', () => {
+    request('http://localhost:7865/cart/12', (error, res, body) => {
+      expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
+    });
+  });
+
+  it('should return the correct content in the body when non number id is provided', () => {
+    request('http://localhost:7865/cart/hello', (error, res, body) => {
+      expect(body).to.contain('Cannot GET /cart/hello');
+    });
+  });
+
+  it('should return the correct content length', () => {
+    request('http://localhost:7865/cart/12', (error, res, body) => {
+      expect(res.headers['content-length']).to.equal('27');
+    });
+  });
 });
 
-describe("Available_payments page", function() {
-    it("check correct status for correct url", function() {
-	request.get("http://localhost:7865/available_payments", (err, res, body) => {
-	    if (err) {
-		expect(res.statusCode).to.not.equal(200);
-	    } else {
-		expect(res.statusCode).to.equal(200);
-	    }
-	});
+describe('/available_payments', () => {
+  it('should return status code 200', () => {
+    request.get('http://localhost:7865/available_payments', (error, res, body) => {
+      expect(res.statusCode).to.be.equal(200);
     });
-    it("check correct body content for correct url", function() {
-	const option = {json: true};
-	const payLoad = {
-	    payment_methods: {
-		credit_cards: true,
-		paypal: false
-	    }
-	}
-	request.get("http://localhost:7865/available_payments", option, (err, res, body) => {
-	    if (err) {
-		expect(res.statusCode).to.not.equal(200);
-	    } else {
-		expect(body).to.deep.equal(payLoad);
-	    }
-	});
+  });
+
+  it("should return body content 'Welcome to the payment system'", () => {
+    request.get('http://localhost:7865/available_payments', (error, res, body) => {
+      expect(JSON.parse(body)).to.deep.equal(
+        { payment_methods: { credit_cards: true, paypal: false } });
     });
+  });
+
+  it('should have the correct content type', () => {
+    request('http://localhost:7865/available_payments', (error, res, body) => {
+      expect(res.headers['content-type']).to.equal('application/json; charset=utf-8');
+    });
+  });
+
+  it('should have the correct content length', () => {
+    request('http://localhost:7865/available_payments', (error, res, body) => {
+      expect(res.headers['content-length']).to.equal('56');
+    });
+  });
 });
 
-describe("Login", function() {
-    it("check correct status code for request that's sent properly", function(done) {
-	const opt = {
-	    url: "http://localhost:7865/login",
-	    json: true,
-	    body: {
-		userName: 'JOE'
-	    }
-	};
-	request.post(opt, function(err, res, body) {
-	    expect(res.statusCode).to.equal(200);
-	    done();
-	});
+describe('/login', () => {
+  it('should return status code of 200', () => {
+    request.post({
+      url: 'http://localhost:7865/login',
+      form: { userName: 'Betty' }
+    }, (error, res, body) => {
+      expect(res.statusCode).to.be.equal(200);
     });
-    it("check correct content for request that's sent properly", function(done) {
-	const opts = {
-	    url: "http://localhost:7865/login",
-	    json: true,
-	    body: {
-		userName: 'JOE'
-	    }
-	};
-	request.post(opts, function(err, res, body) {
-	    if (err) {
-		expect(res.statusCode).to.not.equal(200);
-	    } else {
-		expect(body).to.contain('Welcome JOE');
-	    }
-	    done();
-	});
+  });
+  it('should return Welcome Betty', () => {
+    request.post({
+      url: 'http://localhost:7865/login',
+      json: { userName: 'Betty' }
+    }, (error, res, body) => {
+      expect(res.body).to.be.equal('Welcome Betty');
     });
-    it("check correct status code for request that's not sent properly", function(done) {
-	const op = {
-	    url: "http://localhost:7865/login",
-	    json: true,
-	    body: {
-		usame: 'JOE'
-	    }
-	};
-	request.post(op, function(err, res, body) {
-	    expect(res.statusCode).to.equal(404);
-	    done();
-	});
+  });
+
+  it('should return the correct result with form data value', () => {
+    const data = {
+      userName: 'Betty',
+    };
+    request.post({
+      url: 'http://localhost:7865/login',
+      body: data,
+      json: true,
+    }, (error, res, body) => {
+      expect(body).to.contain('Welcome Betty');
     });
+  });
+
+  it('should return the correct content type', () => {
+    const data = {
+      userName: 'Betty',
+    };
+    request.post({
+      url: 'http://localhost:7865/login',
+      body: data,
+      json: true,
+    }, (error, res, body) => {
+      expect(res.headers['content-type']).to.equal('text/html; charset=utf-8');
+    });
+  });
+
+  it('should return the correct content length', () => {
+    const data = {
+      userName: 'Betty',
+    };
+    request.post({
+      url: 'http://localhost:7865/login',
+      body: data,
+      json: true,
+    }, (error, res, body) => {
+      expect(res.headers['content-length']).to.equal('13');
+    });
+  });
+
+  it('should return the correct status 404 with invalid get value', () => {
+    const data = {
+      username: 'Betty',
+    };
+    request.post({
+      url: 'http://localhost:7865/login',
+      body: data,
+      json: true,
+    }, (error, res, body) => {
+      expect(res.statusCode).to.equal(404);
+    });
+  });
 });
+
